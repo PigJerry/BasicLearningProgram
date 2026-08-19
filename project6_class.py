@@ -6,7 +6,7 @@ class WebDownloader:
         self.url = url
         self.html = None
 
-    def fetch (self):
+    def fetch(self):
         response = requests.get(self.url)
         response.encoding = "utf-8"
         self.html = response.text
@@ -18,5 +18,23 @@ class WebDownloader:
         soup = BeautifulSoup(self.html, "html.parser")
         return soup.title.string
 
-Downloader = WebDownloader("https://www.baidu.com")
-print(Downloader.get_title())
+    def get_links(self):
+        if self.html is None:
+            self.fetch()
+        soup = BeautifulSoup(self.html, "html.parser")
+        all_a = soup.find_all("a")
+        # 这一行是一个“列表推导式”，意思是：把所有 <a> 标签里的 href 拿出来，如果它存在的话
+        links = [a.get("href") for a in all_a if a.get("href")]
+        return links
+
+# ---- 使用这个类 ----
+downloader = WebDownloader("https://www.baidu.com")
+
+# 1. 打印标题
+print("标题:", downloader.get_title())
+
+# 2. 打印前 5 个链接
+all_links = downloader.get_links()
+print("前 5 个链接:")
+for link in all_links[:5]:
+    print(link)
